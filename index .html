@@ -1,0 +1,433 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>StreamFlix Admin Panel</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&display=swap');
+  body {
+    margin: 0;
+    font-family: 'Montserrat', sans-serif;
+    background: #141414;
+    color: #fff;
+    padding: 0 20px 40px;
+  }
+  header {
+    background: #e50914;
+    padding: 20px;
+    text-align: center;
+    font-weight: 700;
+    font-size: 1.8rem;
+    letter-spacing: 2px;
+    user-select: none;
+  }
+  main {
+    max-width: 900px;
+    margin: 20px auto 0 auto;
+  }
+  form {
+    background: #222;
+    padding: 25px 20px;
+    border-radius: 10px;
+  }
+  label {
+    display: block;
+    margin-top: 15px;
+    margin-bottom: 6px;
+    font-weight: 600;
+  }
+  input[type="text"],
+  input[type="number"],
+  select,
+  textarea {
+    width: 100%;
+    padding: 10px 12px;
+    border-radius: 8px;
+    border: none;
+    font-size: 1rem;
+    font-family: 'Montserrat', sans-serif;
+    background: #333;
+    color: #fff;
+    resize: vertical;
+  }
+  textarea {
+    min-height: 80px;
+  }
+  button {
+    margin-top: 25px;
+    background: #e50914;
+    border: none;
+    color: white;
+    font-weight: 700;
+    font-size: 1.1rem;
+    padding: 12px 22px;
+    border-radius: 25px;
+    cursor: pointer;
+    user-select: none;
+    transition: background-color 0.3s ease;
+  }
+  button:hover {
+    background-color: #b0070e;
+  }
+  #error-message {
+    margin-top: 12px;
+    min-height: 24px;
+    color: #ff5252;
+    font-weight: 600;
+  }
+  #success-message {
+    margin-top: 12px;
+    min-height: 24px;
+    color: #6bd26b;
+    font-weight: 600;
+  }
+  table {
+    margin-top: 40px;
+    width: 100%;
+    border-collapse: collapse;
+    background: #222;
+    border-radius: 10px;
+    overflow: hidden;
+  }
+  th, td {
+    padding: 12px 10px;
+    text-align: left;
+    border-bottom: 1px solid #444;
+    vertical-align: middle;
+  }
+  th {
+    background: #2a2a2a;
+    font-weight: 700;
+  }
+  td img {
+    width: 75px;
+    border-radius: 6px;
+  }
+  .btn-delete {
+    background: #a82020;
+    border: none;
+    padding: 7px 14px;
+    border-radius: 6px;
+    cursor: pointer;
+    color: white;
+    font-weight: 600;
+    user-select: none;
+    transition: background-color 0.3s ease;
+  }
+  .btn-delete:hover {
+    background: #7a1616;
+  }
+  .btn-logout {
+    margin-top: 40px;
+    background: #444;
+    font-size: 1rem;
+    padding: 10px 18px;
+    border-radius: 25px;
+    border: none;
+    cursor: pointer;
+    color: #fff;
+    user-select: none;
+    transition: background-color 0.3s ease;
+  }
+  .btn-logout:hover {
+    background-color: #666;
+  }
+  @media screen and (max-width: 600px) {
+    table {
+      font-size: 0.9rem;
+    }
+    td img {
+      width: 50px;
+    }
+  }
+</style>
+</head>
+<body>
+<header>StreamFlix Admin Panel</header>
+<main>
+  <form id="movie-form" aria-label="Add new movie form">
+    <label for="title">Title *</label>
+    <input type="text" id="title" name="title" autocomplete="off" required />
+
+    <label for="year">Year *</label>
+    <input type="number" id="year" name="year" min="1900" max="2100" required />
+
+    <label for="category">Category *</label>
+    <select id="category" name="category" required>
+      <option value="">-- Select category --</option>
+      <option value="movie">Movie</option>
+      <option value="drama">Drama</option>
+    </select>
+
+    <label for="rating">Rating (0-10) *</label>
+    <input type="number" id="rating" name="rating" min="0" max="10" step="0.1" required />
+
+    <label for="synopsis">Synopsis *</label>
+    <textarea id="synopsis" name="synopsis" required></textarea>
+
+    <label for="image">Image URL *</label>
+    <input type="text" id="image" name="image" required />
+
+    <label for="trailer">Trailer URL (optional)</label>
+    <input type="text" id="trailer" name="trailer" />
+
+    <button type="submit">Add Movie</button>
+    <div id="error-message" aria-live="polite"></div>
+    <div id="success-message" aria-live="polite"></div>
+  </form>
+
+  <section aria-label="Current movies">
+    <h2 style="margin-top: 40px; margin-bottom: 8px;">Current Movies</h2>
+    <table id="movies-table" role="grid" aria-describedby="table-desc">
+      <caption id="table-desc" style="text-align:left; font-weight: 400; font-size: 0.9rem; margin-bottom: 8px;">
+        List of movies currently stored in the system. Use delete buttons to remove entries.
+      </caption>
+      <thead>
+        <tr>
+          <th scope="col">Poster</th>
+          <th scope="col">Title</th>
+          <th scope="col">Year</th>
+          <th scope="col">Category</th>
+          <th scope="col">Rating</th>
+          <th scope="col">Actions</th>
+        </tr>
+      </thead>
+      <tbody id="movie-list-body">
+        <!-- Rows added dynamically -->
+      </tbody>
+    </table>
+  </section>
+  <button class="btn-logout" id="logout-btn" type="button" aria-label="Logout and return to login">Logout</button>
+</main>
+
+<script>
+  // Helper: generate unique ID for movie entries
+  function generateID() {
+    return 'm_' + Math.random().toString(36).substr(2, 9);
+  }
+
+  // Retrieve movies from localStorage or initial default sample movies
+  const defaultMovies = [
+    {
+      id: 'm1',
+      title: 'The Midnight Sun',
+      year: 2023,
+      category: 'movie',
+      rating: '8.4',
+      synopsis: 'A gripping thriller about a secret agent racing against time under the midnight sun.',
+      image: 'https://image.tmdb.org/t/p/w500/8UlWHLMpgZm9bx6QYh0NFoq67TZ.jpg',
+      trailer: 'https://www.youtube.com/watch?v=FqvtdIegbZ4'
+    },
+    {
+      id: 'm2',
+      title: 'Redemption Road',
+      year: 2022,
+      category: 'movie',
+      rating: '7.9',
+      synopsis: 'An emotional journey of a man seeking redemption and justice against all odds.',
+      image: 'https://image.tmdb.org/t/p/w500/gEU2QniE6E77NI6lCU6MxlNBvIx.jpg',
+      trailer: 'https://www.youtube.com/watch?v=lTLF9lNqNqo'
+    },
+    {
+      id: 'd1',
+      title: 'Heartstrings',
+      year: 2023,
+      category: 'drama',
+      rating: '9.0',
+      synopsis: 'A romantic drama series exploring love, heartbreak, and hope in a modern city.',
+      image: 'https://upload.wikimedia.org/wikipedia/en/7/74/Youku_logo.png',
+      trailer: 'https://www.youtube.com/watch?v=Z3KN_3-dxIE'
+    },
+    {
+      id: 'd2',
+      title: 'City of Shadows',
+      year: 2024,
+      category: 'drama',
+      rating: '8.5',
+      synopsis: 'A dark drama about crime, secrets and betrayal set in a mysterious metropolis.',
+      image: 'https://image.tmdb.org/t/p/w500/qJ2tW6WMUDux911r6m7haRef0WH.jpg',
+      trailer: 'https://www.youtube.com/watch?v=Fz9lGzC9VjQ'
+    },
+    {
+      id: 'm3',
+      title: 'Galactic Odyssey',
+      year: 2024,
+      category: 'movie',
+      rating: '8.8',
+      synopsis: 'An epic sci-fi adventure across galaxies and unknown worlds.',
+      image: 'https://image.tmdb.org/t/p/w500/5KCVkau1HEl7ZzfPsKAPM0sMiKc.jpg',
+      trailer: 'https://www.youtube.com/watch?v=JnPTwq2EuZM'
+    },
+    {
+      id: 'd3',
+      title: 'Silent Tears',
+      year: 2023,
+      category: 'drama',
+      rating: '8.7',
+      synopsis: 'A gripping drama depicting the struggles of a family torn apart by tragedy.',
+      image: 'https://image.tmdb.org/t/p/w500/75YShNniHHqlGAdNyFtKfan0s06.jpg',
+      trailer: 'https://www.youtube.com/watch?v=PXRyg7vfP28'
+    },
+    {
+      id: 'm4',
+      title: 'Crimson Sky',
+      year: 2023,
+      category: 'movie',
+      rating: '8.0',
+      synopsis: 'An action-packed thriller high above the clouds with sky pirates and secrets.',
+      image: 'https://image.tmdb.org/t/p/w500/jPzAmehsIGliIqZ45t0gCmfalkf.jpg',
+      trailer: 'https://www.youtube.com/watch?v=V2xG0T6AL9E'
+    },
+    {
+      id: 'd4',
+      title: 'Love in July',
+      year: 2024,
+      category: 'drama',
+      rating: '9.2',
+      synopsis: 'A charming summer romance drama filled with laughter, tears and surprises.',
+      image: 'https://image.tmdb.org/t/p/w500/m1fFjfNu9WR41j1pq9Lq9MYRpil.jpg',
+      trailer: 'https://www.youtube.com/watch?v=CC05j6OSLgI'
+    },
+    {
+      id: 'm5',
+      title: 'Legends Never Die',
+      year: 2024,
+      category: 'movie',
+      rating: '9.1',
+      synopsis: 'A legendary tale of heroes, battles and the legacy they leave behind.',
+      image: 'https://image.tmdb.org/t/p/w500/3INEzPwlY7fkyGDh3UoG9MZz0Ot.jpg',
+      trailer: 'https://www.youtube.com/watch?v=bb6zjUwMbKU'
+    },
+    {
+      id: 'd5',
+      title: 'Echoes of Time',
+      year: 2023,
+      category: 'drama',
+      rating: '8.6',
+      synopsis: 'A mystery drama exploring memories and secrets that transcend time.',
+      image: 'https://image.tmdb.org/t/p/w500/fK9HiHtQXTVQflvDUIQRvoWVwKy.jpg',
+      trailer: 'https://www.youtube.com/watch?v=04LIQpR_Ozs'
+    }
+  ];
+
+  function getMovies() {
+    try {
+      const moviesRaw = localStorage.getItem('streamflix_movies');
+      if (!moviesRaw) {
+        localStorage.setItem('streamflix_movies', JSON.stringify(defaultMovies));
+        return [...defaultMovies];
+      }
+      const movies = JSON.parse(moviesRaw);
+      if (!Array.isArray(movies)) return [...defaultMovies];
+      return movies;
+    } catch {
+      return [...defaultMovies];
+    }
+  }
+
+  function saveMovies(movies) {
+    localStorage.setItem('streamflix_movies', JSON.stringify(movies));
+  }
+
+  let movies = getMovies();
+
+  const form = document.getElementById('movie-form');
+  const errorMessage = document.getElementById('error-message');
+  const successMessage = document.getElementById('success-message');
+  const movieListBody = document.getElementById('movie-list-body');
+  const logoutBtn = document.getElementById('logout-btn');
+
+  function renderMovieList() {
+    movieListBody.innerHTML = '';
+    if (movies.length === 0) {
+      movieListBody.innerHTML = '<tr><td colspan="6" style="text-align:center; color:#777;">No movies added yet.</td></tr>';
+      return;
+    }
+    movies.forEach(movie => {
+      const tr = document.createElement('tr');
+      tr.innerHTML = \`
+        <td><img src="\${movie.image}" alt="\${movie.title} poster" loading="lazy" /></td>
+        <td>\${movie.title}</td>
+        <td>\${movie.year}</td>
+        <td>\${movie.category.charAt(0).toUpperCase() + movie.category.slice(1)}</td>
+        <td>\${movie.rating}</td>
+        <td><button class="btn-delete" data-id="\${movie.id}" aria-label="Delete movie \${movie.title}">&times; Delete</button></td>
+      \`;
+      movieListBody.appendChild(tr);
+    });
+  }
+  renderMovieList();
+
+  form.addEventListener('submit', e => {
+    e.preventDefault();
+    errorMessage.textContent = '';
+    successMessage.textContent = '';
+
+    const title = form.title.value.trim();
+    const year = parseInt(form.year.value);
+    const category = form.category.value;
+    const rating = parseFloat(form.rating.value);
+    const synopsis = form.synopsis.value.trim();
+    const image = form.image.value.trim();
+    const trailer = form.trailer.value.trim();
+
+    if (!title || !year || !category || isNaN(rating) || !synopsis || !image) {
+      errorMessage.textContent = 'Please fill all required fields properly.';
+      return;
+    }
+    if (year < 1900 || year > 2100) {
+      errorMessage.textContent = 'Year must be between 1900 and 2100.';
+      return;
+    }
+    if (rating < 0 || rating > 10) {
+      errorMessage.textContent = 'Rating must be between 0 and 10.';
+      return;
+    }
+    // Prevent duplicate title-year duplicate
+    if (movies.some(m => m.title.toLowerCase() === title.toLowerCase() && m.year === year)) {
+      errorMessage.textContent = 'Movie with this title and year already exists.';
+      return;
+    }
+
+    const newMovie = {
+      id: generateID(),
+      title,
+      year,
+      category,
+      rating: rating.toFixed(1),
+      synopsis,
+      image,
+      trailer: trailer || ''
+    };
+
+    movies.push(newMovie);
+    saveMovies(movies);
+    renderMovieList();
+
+    successMessage.textContent = 'Movie added successfully!';
+    form.reset();
+    form.title.focus();
+  });
+
+  movieListBody.addEventListener('click', e => {
+    if (e.target.classList.contains('btn-delete')) {
+      const movieId = e.target.dataset.id;
+      if (confirm('Are you sure you want to delete this movie?')) {
+        movies = movies.filter(m => m.id !== movieId);
+        saveMovies(movies);
+        renderMovieList();
+        alert('Movie deleted successfully.');
+      }
+    }
+  });
+
+  logoutBtn.addEventListener('click', () => {
+    // Just redirect to main page or close tab
+    // Here just reload page or redirect to user site
+    window.location.href = 'index.html'; // assuming user site is index.html in same folder; adjust if different
+  });
+</script>
+</body>
+</html>
+
